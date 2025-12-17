@@ -101,6 +101,9 @@ func main() {
 	c := flag.String("c", "room_pwd.json", "room password config file")
 	cert := flag.String("cert", "", "cert file")
 	key := flag.String("key", "", "key file")
+	publicIP := flag.String("public-ip", "", "TURN server public IP")
+	turnPort := flag.Int("turn-port", 3478, "TURN server port")
+	turnUsers := flag.String("turn-users", "", "TURN server users in format user1=pass1,user2=pass2")
 	flag.Parse()
 
 	// 初始化服务
@@ -113,9 +116,13 @@ func main() {
 	// 设置路由
 	http.HandleFunc("/ws", handleWebSocket)
 	http.HandleFunc("/ws/", handleWebSocket)
-
+	if len(*publicIP) > 0 && len(*turnUsers) > 0 {
+		log.Printf("Starting TURN server on %s:%d\n", *publicIP, *turnPort)
+		startTURN(publicIP, turnPort, turnUsers)
+	}
 	addr := fmt.Sprintf(":%d", *httpPort)
 	log.Printf("server start on port %d\n", *httpPort)
+
 	if len(*cert) > 0 {
 		if err := http.ListenAndServeTLS(addr, *cert, *key, nil); err != nil {
 			log.Fatalf("Server failed:  %v\n", err)
