@@ -208,7 +208,7 @@ func handleHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 读取并返回文件
-	file, err := os.Open(filePath)
+	file, err := embededFiles.Open(filePath)
 	if err != nil {
 		http.Error(w, "File not found", http.StatusNotFound)
 		return
